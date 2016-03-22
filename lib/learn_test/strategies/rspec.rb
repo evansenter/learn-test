@@ -1,4 +1,6 @@
 module LearnTest
+  debug!
+
   module Strategies
     class Rspec < LearnTest::Strategy
       def service_endpoint
@@ -6,7 +8,7 @@ module LearnTest
       end
 
       def detect
-        runner.files.include?('spec') && (spec_files.include?('spec_helper.rb') || spec_files.include?('rails_helper.rb'))
+        runner.files.any? { |path| path.end_with?("spec") } && spec_files.any? { |path| path =~ /(spec_helper|rails_helper)\.rb$/ }
       end
 
       def configure
@@ -29,7 +31,7 @@ module LearnTest
       end
 
       def run
-        system("rspec #{argv.join(' ')} --format j --out .results.json")
+        system(LearnTest.debug { "rspec #{argv.join(' ')} --default-path #{RepoParser.root} --format j --out .results.json" })
       end
 
       def output
@@ -63,7 +65,7 @@ module LearnTest
       private
 
       def spec_files
-        @spec_files ||= Dir.entries('./spec')
+        @spec_files ||= Dir.entries(RepoParser.path_to("spec"))
       end
 
       def format_option_present?
@@ -71,7 +73,7 @@ module LearnTest
       end
 
       def dot_rspec
-        @dot_rspec ||= File.readlines('.rspec').map(&:strip) if File.exist?('.rspec')
+        @dot_rspec ||= File.readlines(config).map(&:strip) if config = RepoParser.path_to(".spec")
       end
 
       def failures

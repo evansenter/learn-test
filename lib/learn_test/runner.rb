@@ -20,7 +20,7 @@ module LearnTest
     end
 
     def files
-      @files ||= Dir.entries('.')
+      @files ||= Pathname.new(RepoParser.root).children.map(&:expand_path).map(&:to_s)
     end
 
     def keep_results?

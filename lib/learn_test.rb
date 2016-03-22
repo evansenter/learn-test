@@ -2,6 +2,23 @@ require 'fileutils'
 require 'faraday'
 require 'oj'
 require 'colorize'
+require 'pathname'
+
+module LearnTest
+  def self.debug?
+    @debug ||= false
+  end
+
+  def self.debug!
+    @debug = true
+  end
+
+  def self.debug(&block)
+    yield.tap do |result|
+      puts result if debug?
+    end
+  end
+end
 
 require_relative 'learn_test/version'
 require_relative 'learn_test/netrc_interactor'
@@ -33,6 +50,3 @@ require_relative 'learn_test/strategies/protractor'
 require_relative 'learn_test/strategies/java_junit'
 require_relative 'learn_test/strategies/mocha'
 require_relative 'learn_test/strategies/green_onion'
-
-module LearnTest
-end
